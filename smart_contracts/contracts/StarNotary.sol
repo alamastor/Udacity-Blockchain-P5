@@ -6,17 +6,33 @@ contract StarNotary is ERC721 {
 
     struct Star { 
         string name; 
+        string dec;
+        string mag;
+        string cent;
+        string story;
     }
 
     mapping(uint256 => Star) public tokenIdToStarInfo; 
     mapping(uint256 => uint256) public starsForSale;
+    Star[] existingStars;
 
-    function createStar(string _name, uint256 _tokenId) public { 
-        Star memory newStar = Star(_name);
+    function createStar(
+        string _name,
+        string _dec,
+        string _mag,
+        string _cent,
+        string _story,
+        uint256 _tokenId
+    ) public { 
+        require(!checkIfStarExist(_dec, _mag, _cent), "Star already exists");
+
+        Star memory newStar = Star(_name, _dec, _mag, _cent, _story);
 
         tokenIdToStarInfo[_tokenId] = newStar;
 
         _mint(msg.sender, _tokenId);
+
+        existingStars.push(newStar);
     }
 
     function putStarUpForSale(uint256 _tokenId, uint256 _price) public { 
@@ -40,5 +56,19 @@ contract StarNotary is ERC721 {
         if(msg.value > starCost) { 
             msg.sender.transfer(msg.value - starCost);
         }
+    }
+
+    function checkIfStarExist(string _dec, string _mag, string _cent) public view returns (bool) {
+        for (uint i = 0; i < existingStars.length; i++) {
+            Star memory star = existingStars[i];
+            if (keccak256(abi.encodePacked(star.dec)) == keccak256(abi.encodePacked(_dec)) &&
+                keccak256(abi.encodePacked(star.mag)) == keccak256(abi.encodePacked(_mag)) &&
+                keccak256(abi.encodePacked(star.cent)) == keccak256(abi.encodePacked(_cent))
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
