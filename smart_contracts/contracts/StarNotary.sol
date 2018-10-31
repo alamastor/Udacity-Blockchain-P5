@@ -10,11 +10,12 @@ contract StarNotary is ERC721 {
         string mag;
         string cent;
         string story;
+        bool valid; // For null check in star mappings - set true when creating
     }
 
     mapping(uint256 => Star) public tokenIdToStarInfo; 
     mapping(uint256 => uint256) public starsForSale;
-    Star[] existingStars;
+    uint256[] existingTokenIds;
 
     function createStar(
         string _name,
@@ -26,13 +27,11 @@ contract StarNotary is ERC721 {
     ) public { 
         require(!checkIfStarExist(_dec, _mag, _cent), "Star already exists");
 
-        Star memory newStar = Star(_name, _dec, _mag, _cent, _story);
+        Star memory newStar = Star(_name, _dec, _mag, _cent, _story, true);
 
         tokenIdToStarInfo[_tokenId] = newStar;
 
-        _mint(msg.sender, _tokenId);
-
-        existingStars.push(newStar);
+        mint(_tokenId);
     }
 
     function putStarUpForSale(uint256 _tokenId, uint256 _price) public { 
@@ -59,16 +58,25 @@ contract StarNotary is ERC721 {
     }
 
     function checkIfStarExist(string _dec, string _mag, string _cent) public view returns (bool) {
-        for (uint i = 0; i < existingStars.length; i++) {
-            Star memory star = existingStars[i];
-            if (keccak256(abi.encodePacked(star.dec)) == keccak256(abi.encodePacked(_dec)) &&
-                keccak256(abi.encodePacked(star.mag)) == keccak256(abi.encodePacked(_mag)) &&
-                keccak256(abi.encodePacked(star.cent)) == keccak256(abi.encodePacked(_cent))
-            ) {
-                return true;
+        for (uint i = 0; i < existingTokenIds.length; i++) {
+            uint256 tokenId = existingTokenIds[i];
+            if (tokenIdToStarInfo[tokenId].valid) {
+                Star memory star = tokenIdToStarInfo[tokenId];
+                if (stringEqual(star.dec, _dec) && stringEqual(star.mag,_mag) && stringEqual(star.cent,_cent)) {
+                    return true;
+                }
             }
         }
 
         return false;
+    }
+
+    function stringEqual(string _str1, string _str2) internal pure returns (bool) {
+        return keccak256(abi.encodePacked(_str1)) == keccak256(abi.encodePacked(_str2));
+    }
+
+    function mint(uint256 _tokenId) public {
+        _mint(msg.sender, _tokenId);
+        existingTokenIds.push(_tokenId);
     }
 }
