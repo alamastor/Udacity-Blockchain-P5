@@ -16,6 +16,7 @@ contract StarNotary is ERC721 {
     mapping(uint256 => Star) public tokenIdToStarInfo; 
     mapping(uint256 => uint256) public starsForSale;
     uint256[] existingTokenIds;
+    event starCreated(uint256 tokenId);
 
     function createStar(
         string _name,
@@ -32,6 +33,8 @@ contract StarNotary is ERC721 {
         tokenIdToStarInfo[_tokenId] = newStar;
 
         mint(_tokenId);
+
+        emit starCreated(_tokenId);
     }
 
     function putStarUpForSale(uint256 _tokenId, uint256 _price) public { 
@@ -78,5 +81,13 @@ contract StarNotary is ERC721 {
     function mint(uint256 _tokenId) public {
         _mint(msg.sender, _tokenId);
         existingTokenIds.push(_tokenId);
+    }
+
+    function nextTokenId() public view returns (uint256) {
+        if (existingTokenIds.length == 0) {
+            return 1;
+        } else {
+            return existingTokenIds[existingTokenIds.length - 1] + 1;
+        }
     }
 }

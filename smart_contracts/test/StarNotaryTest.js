@@ -284,6 +284,17 @@ contract("StarNotary", accounts => {
       ]);
     });
   });
+
+  describe("nextTokenId", () => {
+    it("returns 1 when there are no tokens", async function() {
+      assert.equal(await this.contract.nextTokenId(), 1);
+    });
+
+    it("returns incremented token value", async function() {
+      await this.contract.mint(10);
+      assert.equal(await this.contract.nextTokenId(), 11);
+    });
+  });
 });
 
 const expectThrow = async function(promise) {
