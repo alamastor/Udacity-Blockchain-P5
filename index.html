@@ -13,6 +13,7 @@
 <body>
     <div class="container">
         <h1>Star Notary</h1>
+        <h2>Create Star</h2>
         <form onsubmit="claimButtonClicked();return false">
             <div class="row">
                 <label class="bold">Star Name:</label>
@@ -37,11 +38,21 @@
                 <label class="bold">Cent:</label>
                 <input id="star-cent" />
             </div>
-            <button id="claim-button">Claim Star</button>
+            <button>Claim Star</button>
             <div class="row" id="create-result">
             </div>
         </form>
         <hr />
+        <h2>Lookup Star</h2>
+        <form onsubmit="lookupButtonClicked();return false">
+            <div class="row">
+                <label class="bold">Star Token Id:</label>
+                <input type="text" id="lookup-tokenid" />
+            </div>
+            <button>Lookup Star</button>
+            <div class="row" id="lookup-result">
+            </div>
+        </form>
     </div>
 
     <script>
@@ -581,6 +592,52 @@
                         createMessageSetError(error.message);
                     }
                 });
+            })
+        }
+
+        function lookupMessageClear() {
+            document.getElementById('lookup-result').innerText = "";
+            document.getElementById('lookup-result').style.color = "black";
+        }
+
+        function lookupMessageSet(msg) {
+            document.getElementById('lookup-result').innerText = msg;
+            document.getElementById('lookup-result').style.color = "black";
+        }
+
+        function lookupMessageSetError(msg) {
+            document.getElementById('lookup-result').innerText = msg;
+            document.getElementById('lookup-result').style.color = "red";
+        }
+
+        function lookupButtonClicked() {
+            createMessageClear();
+            web3.eth.getAccounts(function (error, accounts) {
+                if (error) {
+                    console.log(error);
+                    lookupMessageSetError(error.message);
+                    return
+                }
+                var tokenId = document.getElementById("lookup-tokenid").value;
+                starNotary.tokenIdToStarInfo(tokenId, function (error, result) {
+                    if (!error) {
+                        if (result[5]) {
+                            lookupMessageSet(
+                                "Found Star! - " +
+                                "Name: " + result[0] +
+                                ", Story: " + result[4] +
+                                ", Dec: " + result[1] +
+                                ", Mag: " + result[2] +
+                                ", Cent: " + result[3]
+                            );
+                        } else {
+                            lookupMessageSetError("Star does not exist!");
+                        }
+                    } else {
+                        console.log(error);
+                        lookupMessageSetError(error.message);
+                    }
+                })
             })
         }
     </script>
