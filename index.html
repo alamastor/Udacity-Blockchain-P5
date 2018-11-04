@@ -56,7 +56,7 @@
     </div>
 
     <script>
-        /*
+        var contractAddress = "0xe32c2422d0ba775f3719b3457f846394e5fe3a6a"
         if (typeof web3 != 'undefined') {
             web3.currentProvider.enable();
             web3 = new Web3(web3.currentProvider) // what Metamask injected
@@ -64,8 +64,6 @@
             // Instantiate and set Ganache as your provider
             web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
         }
-        */
-        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
         // The default (top) wallet account from a list of test accounts
         web3.eth.defaultAccount = web3.eth.accounts[0];
@@ -536,7 +534,7 @@
             }
         ]);
         // Grab the contract at specified deployed address with the interface defined by the ABI
-        var starNotary = StarNotary.at('0x86ada8ec12b965df55bad882343b0da50baa1e25');
+        var starNotary = StarNotary.at(contractAddress);
 
         function createMessageClear() {
             document.getElementById('create-result').innerText = "";
